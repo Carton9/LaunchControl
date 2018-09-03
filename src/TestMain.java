@@ -1,3 +1,5 @@
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -10,10 +12,11 @@ import java.util.TimerTask;
 import org.carton.common.net.ReceiveListener;
 import org.carton.common.net.ServiceDiscoverUDPSocket;
 import org.carton.common.service.GeneralServiceExecutePool;
+import org.jdom.JDOMException;
 
 public class TestMain {
 	static int count=0;
-	public static void main(String[] args) throws InterruptedException, SocketException, UnknownHostException {
+	public static void main(String[] args) throws InterruptedException, FileNotFoundException, JDOMException, IOException {
 //		SimpleDateFormat format0 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //		
 //		for(int i=0;i<100;i++) {
@@ -55,9 +58,9 @@ public class TestMain {
 //			}
 //			
 //		}, 100,100);
-		ServiceDiscoverUDPSocket dsus=new ServiceDiscoverUDPSocket(25225);
+//		ServiceDiscoverUDPSocket dsus=new ServiceDiscoverUDPSocket(25225);
 //		ServiceDiscoverUDPSocket dsus1=new ServiceDiscoverUDPSocket(25226);
-		dsus.addService("Test1", true);////
+//		dsus.addService("Test1", true);////
 //		dsus1.discoverService("Test1", false, 25225, new ReceiveListener() {
 //
 //			@Override
@@ -74,5 +77,8 @@ public class TestMain {
 //
 //		});
 //		System.out.println(InetAddress.getLocalHost().getHostAddress());
+		DataCore core=new DataCore();
+		core.addCollector(new TestCollecter());
+		core.compileData();
 	}
 }

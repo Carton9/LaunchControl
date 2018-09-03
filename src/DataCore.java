@@ -7,9 +7,12 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.carton.common.net.GeneralUDPSocket;
+import org.carton.common.net.ReceiveListener;
+import org.carton.common.net.ServiceDiscoverUDPSocket;
 import org.carton.common.util.ConfigAccesser;
 import org.jdom.JDOMException;
 
@@ -21,6 +24,7 @@ public class DataCore {
 	ArrayList<DataCollector> collectors=new ArrayList<DataCollector>();
 	private ConcurrentLinkedQueue<HashMap<String,ArrayList<String>>> dataQueue = new ConcurrentLinkedQueue<HashMap<String,ArrayList<String>>>();
 	GeneralUDPSocket gus;
+	HashSet<InetAddress> ipList=new HashSet<InetAddress>();
 	public DataCore() throws FileNotFoundException, JDOMException, IOException {
 		File localPath=new File("").getAbsoluteFile();
 		File dataFormatFile=new File(localPath.getAbsolutePath()+File.separator+"data_format.info");
@@ -28,7 +32,44 @@ public class DataCore {
 		dataFormatConfig=new ConfigAccesser(dataFormatFile);
 		generalConfig=new ConfigAccesser(generalConfigFile);
 		loadDataItems();
-		gus=new GeneralUDPSocket(Integer.parseInt(generalSetting.get("port")));
+//		gus=new GeneralUDPSocket(Integer.parseInt(generalSetting.get("DataPort")));
+//		ServiceDiscoverUDPSocket sdus=new ServiceDiscoverUDPSocket(Integer.parseInt(generalSetting.get("DiscoverPort")));
+//		sdus.addService(generalSetting.get("Service"), true,new ReceiveListener() {
+//
+//			@Override
+//			public boolean verify(byte[] data, InetAddress ip, int port) {
+//				// TODO Auto-generated method stub
+//				return true;
+//			}
+//
+//			@Override
+//			public void process(byte[] data, InetAddress ip, int port) {
+//				// TODO Auto-generated method stub
+//				ipList.add(ip);
+//			}
+//			
+//		});
+		
+		gus=new GeneralUDPSocket(Integer.parseInt("17852"));
+		ServiceDiscoverUDPSocket sdus=new ServiceDiscoverUDPSocket(Integer.parseInt("17851"));
+		sdus.addService(generalSetting.get("Service"), true,new ReceiveListener() {
+			
+						@Override
+						public boolean verify(byte[] data, InetAddress ip, int port) {
+							// TODO Auto-generated method stub
+							return true;
+						}
+			
+						@Override
+						public void process(byte[] data, InetAddress ip, int port) {
+							// TODO Auto-generated method stub
+							ipList.add(ip);
+						}
+						
+					});
+	}
+	public void addCollector(DataCollector dc) {
+		collectors.add(dc);
 	}
 	public void loadDataItems() {
 		ArrayList<String> items=new ArrayList<String>();
@@ -40,6 +81,7 @@ public class DataCore {
 			dataItems.put(i, dataFormat);
 		}
 		///////////////////////////////////////////
+		generalSetting=new HashMap<String,String>();
 		generalConfig.loadMapFromElement("GeneralSetting", generalSetting);
 	}
 	// DATA FORMAT
@@ -54,7 +96,9 @@ public class DataCore {
 			String dataType=data[0];
 			data=Arrays.copyOfRange(data, 1, data.length);
 			HashMap<String,String> dataFormat=dataItems.get(dataType);
-			boolean isPoint=dataFormat.get("ValueType").equals("Point");
+//			boolean isPoint=dataFormat.get("ValueType").equals("Point");
+			//TestCase
+			boolean isPoint=false;
 			ArrayList<String> result=new ArrayList<String>();
 			for(int i=0;i<data.length;i++) {
 				String dataPoint=data[i];
@@ -67,6 +111,13 @@ public class DataCore {
 			dataFrame.put(dataType, result);
 		}
 		dataQueue.add(dataFrame);
+		//TestCase
+		try {
+			sendData();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void sendData() throws IOException {
@@ -79,7 +130,11 @@ public class DataCore {
 		byte[] dataPackage=bos.toByteArray();
 		oos.close();
 		bos.close();
-//		gus.send(dataPackage, Integer.parseInt(generalSetting.get("port")), InetAddress.getByName("255.255.255.255"));
+		System.out.println(dataFrame);
+		for(InetAddress i:ipList) {
+			gus.send(dataPackage, Integer.parseInt(generalSetting.get("DataPort")), i);
+		}
+		
 	}
 	
 }
