@@ -126,7 +126,7 @@ public class GeneralUDPSocket {
 							resultBOS.write(temp[i]);
 						}
 						recevieQueue.add(this.trimInArray(resultBOS.toByteArray()));
-						this.updateListener();
+						this.updateListener(packet.getAddress(),packet.getPort());
 						ds.send(new DatagramPacket(buffer2,buffer2.length,packet.getAddress(),packet.getPort()));
 					}else {
 						dos.writeChar(this.MissingSign);
@@ -138,6 +138,7 @@ public class GeneralUDPSocket {
 						ds.send(new DatagramPacket(buffer2,buffer2.length,packet.getAddress(),packet.getPort()));
 					}
 				}else if(cmd==this.MissingSign) {
+					//missing hole
 					synchronized (resendQueue) {
 						if(dis.available()==0)
 							this.resendQueue.notifyAll();
@@ -199,9 +200,11 @@ public class GeneralUDPSocket {
 	public void addRecevieListener(ReceiveListener l) {
 		listenerList.add(l);
 	}
-	protected void updateListener() {
+	protected void updateListener(InetAddress address,int port) {
 		HashMap<String, Object> map=new HashMap<String, Object>();
-		map.put("recevie", this.recevieQueue);
+		map.put("data", this.recevieQueue.poll());
+		map.put("address", address);
+		map.put("port", port);
 		for(ServiceListener i:listenerList) {
 			i.action(map);
 		}
@@ -253,7 +256,7 @@ public class GeneralUDPSocket {
 			DatagramPacket[] datas=sendingQueue.poll();
 			for(DatagramPacket i:datas) {
 				ds.send(i);
-				Thread.sleep(10);
+				Thread.sleep(1);
 			}
 			int resend=0;
 			while(true) {

@@ -58,15 +58,25 @@ public class DataLogger extends GeneralService{
 	public void initialize() {
 		// TODO Auto-generated method stub
 		File localPath=new File("").getAbsoluteFile();
-		String time = format0.format(new Date().getTime());
-		SimpleDateFormat format0 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String os = System.getProperty("os.name");
+		String time="";
+		if(os.toLowerCase().startsWith("win")){
+			SimpleDateFormat format0 = new SimpleDateFormat("yyyy-MM-dd@HH-mm-ss");
+			time = format0.format(new Date().getTime());
+		}else {
+			time = format0.format(new Date().getTime());
+		}
 		logFile=new File(localPath.getAbsolutePath()+File.separator+time+".log");
-		
 		try {
+			System.out.println(logFile);
 			fis=new FileOutputStream(logFile);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println(e);
 		}
 		submitInfo("Logger Running",null,null);
 		status[0]=true;
@@ -97,7 +107,11 @@ public class DataLogger extends GeneralService{
 
 	@Override
 	public void finish() {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub\
+		status[0]=false;
+		synchronized(fis) {
+			fis.notifyAll();
+		}
 		try {
 			fis.close();
 		} catch (IOException e) {
