@@ -57,7 +57,7 @@ public class TestMain {
 //		}, 100,100);
 		ServiceDiscoverUDPSocket dsus=new ServiceDiscoverUDPSocket(25225);
 //		ServiceDiscoverUDPSocket dsus1=new ServiceDiscoverUDPSocket(25226);
-		dsus.addService("Test1", true);
+		dsus.addService("Test1", true);////
 //		dsus1.discoverService("Test1", false, 25225, new ReceiveListener() {
 //
 //			@Override
@@ -73,5 +73,6 @@ public class TestMain {
 //			}
 //
 //		});
+		System.out.println(InetAddress.getLocalHost().getHostAddress());
 	}
 }

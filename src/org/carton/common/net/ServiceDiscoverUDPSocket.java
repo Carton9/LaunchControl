@@ -20,8 +20,7 @@ public class ServiceDiscoverUDPSocket {
 				try {
 					ds.receive(packet);
 					byte tempBuff[]=packet.getData();
-					System.out.println(ds.getLocalAddress());
-					if(InetAddress.getLocalHost()==packet.getAddress())continue;
+					if(InetAddress.getLocalHost().getHostAddress().equals(packet.getAddress().getHostAddress()))continue;
 					else {
 						HashMap<String, Object> map=new HashMap<String, Object>();
 						map.put("data", tempBuff);
