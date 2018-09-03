@@ -56,8 +56,6 @@ public class TestMain {
 //			
 //		}, 100,100);
 		ServiceDiscoverUDPSocket dsus=new ServiceDiscoverUDPSocket(25225);
-
-
 //		ServiceDiscoverUDPSocket dsus1=new ServiceDiscoverUDPSocket(25225);
 //		dsus.addService("Test1", true);
 		dsus.discoverService("Test1", false, 25225, new ReceiveListener() {
@@ -70,18 +68,10 @@ public class TestMain {
 
 			@Override
 			public void process(byte[] data, InetAddress ip, int port) {
-				// TODO Auto-generated method stub
-				try {
-					System.out.println(ip.getHostAddress().equals(InetAddress.getLocalHost().getHostAddress()));
-					System.out.println(InetAddress.getLocalHost().getHostAddress());
-				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				System.out.println(ip.getHostAddress());
 				
 			}
 
 		});
-
 	}
 }
