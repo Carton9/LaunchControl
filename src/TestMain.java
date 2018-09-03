@@ -73,6 +73,6 @@ public class TestMain {
 //			}
 //
 //		});
-		System.out.println(InetAddress.getLocalHost().getHostAddress());
+//		System.out.println(InetAddress.getLocalHost().getHostAddress());
 	}
 }

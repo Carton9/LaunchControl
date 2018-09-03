@@ -9,9 +9,11 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
+import java.util.UUID;
 
 public class ServiceDiscoverUDPSocket {
 	boolean isAlive=true;
+	String uuid;
 	Thread receiver=new Thread() {
 		public void run() {
 			while(isAlive) {
@@ -20,7 +22,8 @@ public class ServiceDiscoverUDPSocket {
 				try {
 					ds.receive(packet);
 					byte tempBuff[]=packet.getData();
-					if(InetAddress.getLocalHost().getHostAddress().equals(packet.getAddress().getHostAddress()))continue;
+					
+					if(((new String(tempBuff)).trim().split("@"))[2].equals(uuid))continue;
 					else {
 						HashMap<String, Object> map=new HashMap<String, Object>();
 						map.put("data", tempBuff);
@@ -45,13 +48,16 @@ public class ServiceDiscoverUDPSocket {
 	DatagramSocket ds;
 	Timer timer=new Timer();
 	ArrayList<ReceiveListener> rlList=new ArrayList<ReceiveListener>();
+
 	public ServiceDiscoverUDPSocket(DatagramSocket ds) {
 		this.ds=ds;
 		receiver.start();
+		uuid=UUID.randomUUID().toString();
 	}
 	public ServiceDiscoverUDPSocket(int port) throws SocketException {
 		ds=new DatagramSocket(port);
 		receiver.start();
+		uuid=UUID.randomUUID().toString();
 	}
 	public void addService(String service,boolean isHost) {
 		ReceiveListener rl=new ReceiveListener() {
@@ -74,7 +80,7 @@ public class ServiceDiscoverUDPSocket {
 				System.out.println(ds.getLocalPort()+" process");
 				if(info[1].equals("host")&&!isHost) {
 					try {
-						final String sendingMessege=service+"@"+"peer";
+						final String sendingMessege=service+"@"+"peer"+"@"+uuid;
 //						DatagramPacket packet=new DatagramPacket(sendingMessege.getBytes(), sendingMessege.length(),InetAddress.getByName(info[3]), ds.getLocalPort());
 						DatagramPacket packet=new DatagramPacket(sendingMessege.getBytes(), sendingMessege.length(),ip, port);
 						ds.send(packet);
@@ -84,7 +90,7 @@ public class ServiceDiscoverUDPSocket {
 					}
 				}else if(info[1].equals("peer")&&isHost) {
 					try {
-						final String sendingMessege=service+"@"+"host";
+						final String sendingMessege=service+"@"+"host"+"@"+uuid;
 //						DatagramPacket packet=new DatagramPacket(sendingMessege.getBytes(), sendingMessege.length(),InetAddress.getByName(info[3]), ds.getLocalPort());
 						DatagramPacket packet=new DatagramPacket(sendingMessege.getBytes(), sendingMessege.length(),ip, port);
 						ds.send(packet);
@@ -104,7 +110,7 @@ public class ServiceDiscoverUDPSocket {
 			messege+="host";
 		else
 			messege+="peer";
-		final String sendingMessege=messege;
+		final String sendingMessege=messege+"@"+uuid;;
 		CounterTask ct=new CounterTask(10) {
 
 			@Override
