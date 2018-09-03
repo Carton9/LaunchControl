@@ -21,6 +21,7 @@ public class ServiceDiscoverUDPSocket {
 					ds.receive(packet);
 					byte tempBuff[]=packet.getData();
 					
+					if(ds.getLocalAddress()==packet.getAddress())continue;
 					HashMap<String, Object> map=new HashMap<String, Object>();
 					map.put("data", tempBuff);
 					map.put("address", packet.getAddress());
