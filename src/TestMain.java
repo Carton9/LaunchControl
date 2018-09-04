@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -58,24 +59,28 @@ public class TestMain {
 //			}
 //			
 //		}, 100,100);
-		ServiceDiscoverUDPSocket dsus=new ServiceDiscoverUDPSocket(25225);
-//		ServiceDiscoverUDPSocket dsus1=new ServiceDiscoverUDPSocket(25225);
-//		dsus.addService("Test1", true);
-		dsus.discoverService("Test1", false, 25225, new ReceiveListener() {
-
-			@Override
-			public boolean verify(byte[] data, InetAddress ip, int port) {
-				// TODO Auto-generated method stub
-				return true;
-			}
-
-			@Override
-			public void process(byte[] data, InetAddress ip, int port) {
-				System.out.println(ip.getHostAddress());
-				
-			}
-
-		});
-
+//		ServiceDiscoverUDPSocket dsus=new ServiceDiscoverUDPSocket(25225);
+////		ServiceDiscoverUDPSocket dsus1=new ServiceDiscoverUDPSocket(25225);
+////		dsus.addService("Test1", true);
+//		dsus.discoverService("Test1", false, 25225, new ReceiveListener() {
+//
+//			@Override
+//			public boolean verify(byte[] data, InetAddress ip, int port) {
+//				// TODO Auto-generated method stub
+//				return true;
+//			}
+//
+//			@Override
+//			public void process(byte[] data, InetAddress ip, int port) {
+//				System.out.println(ip.getHostAddress());
+//				
+//			}
+//
+//		});
+		Scanner reader=new Scanner(System.in);
+		DataCore core =new DataCore();
+		core.addCollector(new TestCollecter());
+		reader.nextLine();
+		core.compileData();
 	}
 }

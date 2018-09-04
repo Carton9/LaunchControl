@@ -13,10 +13,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.carton.common.net.GeneralUDPSocket;
 import org.carton.common.net.ReceiveListener;
 import org.carton.common.net.ServiceDiscoverUDPSocket;
+import org.carton.common.service.GeneralServiceExecutePool;
 import org.carton.common.util.ConfigAccesser;
 import org.jdom.JDOMException;
 
-public class DataCore {
+public class DataCore extends GeneralServiceExecutePool{
 	ConfigAccesser dataFormatConfig;
 	ConfigAccesser generalConfig;
 	HashMap<String,HashMap<String,String>> dataItems;
@@ -52,7 +53,7 @@ public class DataCore {
 		
 		gus=new GeneralUDPSocket(Integer.parseInt("17852"));
 		ServiceDiscoverUDPSocket sdus=new ServiceDiscoverUDPSocket(Integer.parseInt("17851"));
-		sdus.addService(generalSetting.get("Service"), true,new ReceiveListener() {
+		sdus.addService("ts", true,new ReceiveListener() {
 			
 						@Override
 						public boolean verify(byte[] data, InetAddress ip, int port) {
@@ -63,10 +64,12 @@ public class DataCore {
 						@Override
 						public void process(byte[] data, InetAddress ip, int port) {
 							// TODO Auto-generated method stub
+							System.out.println(""+ip+":"+port);
 							ipList.add(ip);
 						}
 						
 					});
+		this.lunchUnit(gus);
 	}
 	public void addCollector(DataCollector dc) {
 		collectors.add(dc);

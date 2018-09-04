@@ -24,7 +24,7 @@ import org.carton.common.service.ServiceListener;
  * @author mike
  *
  */
-public class GeneralUDPSocket {
+public class GeneralUDPSocket extends GeneralService{
 	private static int resendTime=5;
 	private static char LengthSign='#';
 	private static char DataSign='!';
@@ -308,4 +308,9 @@ public class GeneralUDPSocket {
 //		count++;
 //	}
 //	sendingQueue.add(dataGroup.toArray(new UnitData[dataGroup.size()]));
+	@Override
+	protected void updateListener() {
+		// TODO Auto-generated method stub
+		
+	}
 }
