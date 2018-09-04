@@ -135,7 +135,8 @@ public class DataCore extends GeneralServiceExecutePool{
 		bos.close();
 		System.out.println(dataFrame);
 		for(InetAddress i:ipList) {
-			gus.send(dataPackage, Integer.parseInt(generalSetting.get("DataPort")), i);
+//			gus.send(dataPackage, Integer.parseInt(generalSetting.get("DataPort")), i);
+			gus.send(dataPackage, 17852, i);
 		}
 		
 	}
