@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.UUID;
 
-public class ServiceDiscoverUDPSocket {
+public class ServiceDiscoverUDPSocket implements AutoCloseable{
 	boolean isAlive=true;
 	String uuid;
 	Thread receiver=new Thread() {
@@ -77,7 +77,7 @@ public class ServiceDiscoverUDPSocket {
 			public void process(byte[] data, InetAddress ip, int port) {
 				// TODO Auto-generated method stub
 				String[] info=(new String(data)).trim().split("@");
-				System.out.println(ds.getLocalPort()+" process");
+//				System.out.println(ds.getLocalPort()+" process");
 				if(info[1].equals("host")&&!isHost) {
 					try {
 						final String sendingMessege=service+"@"+"peer"+"@"+uuid;
@@ -102,6 +102,55 @@ public class ServiceDiscoverUDPSocket {
 			}
 			
 		};
+		rlList.add(rl);
+	}
+	public void addService(String service,boolean isHost,ReceiveListener l) {
+		ReceiveListener rl=new ReceiveListener() {
+
+			@Override
+			public boolean verify(byte[] data, InetAddress ip, int port) {
+				// TODO Auto-generated method stub
+				String[] info=(new String(data)).trim().split("@");
+				if(info.length<2)return false;
+				if(info[0].equals(service)) {
+					return true;
+				}
+				return false;
+			}
+
+			@Override
+			public void process(byte[] data, InetAddress ip, int port) {
+				// TODO Auto-generated method stub
+				String[] info=(new String(data)).trim().split("@");
+//				System.out.println(ds.getLocalPort()+" process");
+				if(info[1].equals("host")&&!isHost) {
+					try {
+						final String sendingMessege=service+"@"+"peer"+"@"+uuid;
+//						DatagramPacket packet=new DatagramPacket(sendingMessege.getBytes(), sendingMessege.length(),InetAddress.getByName(info[3]), ds.getLocalPort());
+						DatagramPacket packet=new DatagramPacket(sendingMessege.getBytes(), sendingMessege.length(),ip, port);
+						ds.send(packet);
+						l.process(data, ip, port);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}else if(info[1].equals("peer")&&isHost) {
+					try {
+						final String sendingMessege=service+"@"+"host"+"@"+uuid;
+//						DatagramPacket packet=new DatagramPacket(sendingMessege.getBytes(), sendingMessege.length(),InetAddress.getByName(info[3]), ds.getLocalPort());
+						DatagramPacket packet=new DatagramPacket(sendingMessege.getBytes(), sendingMessege.length(),ip, port);
+						ds.send(packet);
+						l.process(data, ip, port);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+			}
+			
+		};
+		rlList.add(rl);
 		rlList.add(rl);
 	}
 	public void discoverService(String service,boolean isHost,int port,ReceiveListener l) throws UnknownHostException {
@@ -133,6 +182,14 @@ public class ServiceDiscoverUDPSocket {
 		};
 		timer.schedule(ct, 0,100);
 		rlList.add(l);
+	}
+	@Override
+	public void close() throws Exception {
+		// TODO Auto-generated method stub
+		ds.close();
+		timer.cancel();
+		receiver.stop();
+		
 	}
 }
 

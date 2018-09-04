@@ -1,3 +1,5 @@
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -10,10 +12,11 @@ import java.util.TimerTask;
 import org.carton.common.net.ReceiveListener;
 import org.carton.common.net.ServiceDiscoverUDPSocket;
 import org.carton.common.service.GeneralServiceExecutePool;
+import org.jdom.JDOMException;
 
 public class TestMain {
 	static int count=0;
-	public static void main(String[] args) throws InterruptedException, SocketException, UnknownHostException {
+	public static void main(String[] args) throws InterruptedException, FileNotFoundException, JDOMException, IOException {
 //		SimpleDateFormat format0 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //		
 //		for(int i=0;i<100;i++) {
@@ -73,5 +76,6 @@ public class TestMain {
 			}
 
 		});
+
 	}
 }
