@@ -77,10 +77,10 @@ public class TestMain {
 //			}
 //
 //		});
-		Scanner reader=new Scanner(System.in);
-		DataCore core =new DataCore();
-		core.addCollector(new TestCollecter());
-		reader.nextLine();
-		core.compileData();
+//		Scanner reader=new Scanner(System.in);
+//		DataCore core =new DataCore();
+//		core.addCollector(new TestCollecter());
+//		reader.nextLine();
+//		core.compileData();
 	}
 }
