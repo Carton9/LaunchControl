@@ -1,10 +1,13 @@
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Timer;
@@ -13,6 +16,8 @@ import java.util.TimerTask;
 import org.carton.common.net.ReceiveListener;
 import org.carton.common.net.ServiceDiscoverUDPSocket;
 import org.carton.common.service.GeneralServiceExecutePool;
+import org.carton.common.util.ConfigAccesser;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 
 public class TestMain {
@@ -81,6 +86,33 @@ public class TestMain {
 //		DataCore core =new DataCore();
 //		core.addCollector(new TestCollecter());
 //		reader.nextLine();
-//		core.compileData();
+////		core.compileData();
+//		ValueProfile vp=new ValueProfile("temp", "temp1", "VALUE","C", 1, 1, 1, 0.3);
+//		Element e=vp.compileProfileToElement();
+//		
+//		System.out.println(e.getAttributes());
+//		ValueProfile vp2=ValueProfile.complieProfileFromNode(e);
+//		System.out.println(vp2.compileProfileToString());
+//		File localPath=new File("").getAbsoluteFile();
+//		File generalConfigFile=new File(localPath.getAbsolutePath()+File.separator+"setting.xml");
+//		ConfigAccesser ca=new ConfigAccesser(generalConfigFile);
+//		HashMap<String,String> dataDeliverList=new HashMap<String,String>();
+//		HashMap<String,String> generalSetting=new HashMap<String,String>();
+//		ArrayList<String> listData=new ArrayList<String>();
+//		/****/
+//		generalSetting.put("DiscoverPort", "17851");
+//		generalSetting.put("DataPort", "17852");
+//		listData.add("ElectronicsEngineer");
+//		listData.add("RocketEngineer");
+//		listData.add("PowerEngineer");
+//		dataDeliverList.put("temp", "ElectronicsEngineer,RocketEngineer");
+//		dataDeliverList.put("voltage", "ElectronicsEngineer,PowerEngineer");
+//		/***/
+//		ca.saveListToXml("Monitors", listData);
+//		ca.saveMapToXml("DataDeliverList", dataDeliverList);
+//		ca.saveMapToXml("GeneralSetting", generalSetting);
+//		ca.saveConfiguration();
+		DataCore core =new DataCore();
+//		core.saveConfig();
 	}
 }

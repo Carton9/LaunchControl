@@ -19,6 +19,7 @@ public class ConfigAccesser {
 	private static final String TRUE="true";
 	private static final String MAP="map";
 	private static final String LIST="list";
+	private static final String LISTITEM="listitem";
 	Document document;
 	Element rootElement;
 	File savedFile;
@@ -68,7 +69,7 @@ public class ConfigAccesser {
 		setting.setAttribute("DataType",LIST);
 		String length=""+listData.size();
 		for(int i=0;i<listData.size();i++) {
-			Element e=new Element(i+"");
+			Element e=new Element(LISTITEM+"_"+i);
 			e.setAttribute("value", listData.get(i));
 			setting.addContent(e);
 		}
@@ -85,7 +86,7 @@ public class ConfigAccesser {
 		try {
 			int length=Integer.parseInt(setting.getAttributeValue("length"));
 			for(int i=0;i<length;i++) {
-				Element e=setting.getChild(i+"");
+				Element e=setting.getChild(LISTITEM+"_"+i);
 				if(e==null) {
 					listData.add("");
 				}else {
