@@ -102,7 +102,8 @@ public class DataCore extends GeneralServiceExecutePool{
 					result.add(dataPoint);
 				}
 			}
-			dataFrame.put(dataType, result);
+			dataFrame.put("data type", dataType);
+			dataFrame.put("value", result);
 			dataFrame.put("time", System.currentTimeMillis()+"");
 			String delivers[]=dataDeliverList.get(dataType).split(",");
 			for(String i:delivers) {

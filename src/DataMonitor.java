@@ -1,8 +1,12 @@
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -26,7 +30,7 @@ public class DataMonitor extends GeneralServiceExecutePool {
 	String name;
 	boolean isGPSReady;
 	HashMap<String,ValueProfile[]> profileMap;
-	ArrayList<DisplayUnit> displayList;
+	HashMap<String,DisplayUnit> displayMap;
 	int dataPort;
 	int discoverPort;
 	ConcurrentLinkedQueue<HashMap<String,Object>> dataQueue = new ConcurrentLinkedQueue<HashMap<String,Object>>();
@@ -34,15 +38,47 @@ public class DataMonitor extends GeneralServiceExecutePool {
 	ServiceDiscoverUDPSocket sdus;
 	File generalConfigFile;
 	ArrayList<InetAddress> serverList;
+	DataLogger logger;
+	
+	
 	public DataMonitor() throws FileNotFoundException, JDOMException, IOException {
 		File localPath=new File("").getAbsoluteFile();
 		generalConfigFile=new File(localPath.getAbsolutePath()+File.separator+"Data_Monitor_Setting.xml");
 		Element e=loadConfigurationFromFile();
 		serverList=new ArrayList<InetAddress>();
+		logger=new DataLogger();
 		if(e!=null) {
 			loadConfigurationFromElement(e);
 			gus=new GeneralUDPSocket(dataPort);
 			sdus=new ServiceDiscoverUDPSocket(discoverPort);
+			gus.addRecevieListener(new ReceiveListener() {
+
+				@Override
+				public boolean verify(byte[] data, InetAddress ip, int port) {
+					// TODO Auto-generated method stub
+					return serverList.contains(ip);
+				}
+
+				@Override
+				public void process(byte[] data, InetAddress ip, int port) {
+					// TODO Auto-generated method stub
+					try {
+						ByteArrayInputStream bis=new ByteArrayInputStream(data);
+						ObjectInputStream ois=new ObjectInputStream(bis);
+						HashMap<String,Object> dataFrame=$(ois.readObject());
+						dataQueue.add(dataFrame);
+					}catch(Exception e) {
+						e.printStackTrace();
+					}
+					
+				}
+				
+			});
+			this.lunchUnit(logger);
+			this.lunchUnit(gus);
+		}else{
+			logger.submitWarning("Profile Compiling Error", "", "");
+			throw new FileNotFoundException("Profile Compiling Error");
 		}
 	}
 	public void checkServer() throws UnknownHostException {
@@ -64,6 +100,43 @@ public class DataMonitor extends GeneralServiceExecutePool {
 			
 		});
 	}
+	
+	
+	
+	public void addDisplayUnit(DisplayUnit u) {
+		if(displayMap.containsKey(u.getDataType()))displayMap.get(u.getDataType()).addNext(u);
+		else {
+			displayMap.put(u.getDataType(), u);
+		}
+	}
+	public void addAllDisplayUnit(List<DisplayUnit> l) {
+		for(DisplayUnit u:l) {
+			addDisplayUnit(u);
+		}
+	}
+	public void removeDisplayUnit(String DataType,String DataName) {
+		if(displayMap.containsKey(DataType))displayMap.get(DataType).remove(DataType+"#"+DataName);
+	}
+	
+	private void processInfo()throws Exception {
+		if(!dataQueue.isEmpty()) {
+			HashMap<String,Object> dataItem=dataQueue.poll();
+			String dataType=$(dataItem.get("data type"));
+			ArrayList<String> result=$(dataItem.get("value"));
+			long time=Long.parseLong($(dataItem.get("time")));
+			
+			ValueProfile vps[]=profileMap.get(dataType);
+			double dataArray[]=new double[result.size()];
+			for(int i=0;i<result.size();i++) {
+				double data=Double.parseDouble(result.get(i));
+				dataArray[i]=data;
+			}
+			for(ValueProfile vp:vps) {
+				displayMap.get(dataType).updateInfo(vp.compileData(dataArray));
+			}
+		}
+	}
+	
 	private void loadConfigurationFromElement(Element e) throws FileNotFoundException, JDOMException, IOException {
 		if(e.getName()!="DataMonitor"&&
 			e.getAttributeValue("Name")==null&&
@@ -126,6 +199,9 @@ public class DataMonitor extends GeneralServiceExecutePool {
 	public void saveConfiguration() throws IOException {
 		Element e=saveConfigConfigurationToElement();
 		saveConfigurationToFile(e);
+	}
+	private <T> T $(Object o) {
+		return (T)o;
 	}
 }
 

@@ -30,15 +30,14 @@ public class TestMain {
 //			Thread.sleep(1000);
 //			System.out.println(String.format("INFO %-20s WHEN %-19s, THAT %10s = %-10s","temputrue on line and ready",time,"test one",12312.12+""));
 //		}
-//		DataLogger dl=new DataLogger();
-//		GeneralServiceExecutePool gsep=new GeneralServiceExecutePool();
-//		
-//		gsep.lunchUnit(dl);
-//		for(int i=0;i<100;i++) {
-//			dl.submitInfo("test "+i, "i", i+"");
-//			Thread.sleep(10);
-//			System.out.println(i);
-//		}
+		DataLogger dl=new DataLogger();
+		GeneralServiceExecutePool gsep=new GeneralServiceExecutePool();
+		
+		gsep.lunchUnit(dl);
+		for(int i=0;i<100;i++) {
+			dl.submitWarning("test "+i, "i", i+"");
+			Thread.sleep(10);
+		}
 //		
 //		gsep.closePool();
 //		gsep.closePool();System.out.println("finish");
@@ -94,7 +93,7 @@ public class TestMain {
 //		ValueProfile vp2=ValueProfile.complieProfileFromNode(e);
 //		System.out.println(vp2.compileProfileToString());
 //		File localPath=new File("").getAbsoluteFile();
-//		File generalConfigFile=new File(localPath.getAbsolutePath()+File.separator+"setting.xml");
+//		File generalConfigFile=new File(localPath.getAbsolutePath()+File.separator+"setting2.xml");
 //		ConfigAccesser ca=new ConfigAccesser(generalConfigFile);
 //		HashMap<String,String> dataDeliverList=new HashMap<String,String>();
 //		HashMap<String,String> generalSetting=new HashMap<String,String>();
@@ -112,7 +111,7 @@ public class TestMain {
 //		ca.saveMapToXml("DataDeliverList", dataDeliverList);
 //		ca.saveMapToXml("GeneralSetting", generalSetting);
 //		ca.saveConfiguration();
-		DataCore core =new DataCore();
+//		DataCore core =new DataCore();
 //		core.saveConfig();
 	}
 }

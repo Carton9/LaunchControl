@@ -28,6 +28,7 @@ public class DataLogger extends GeneralService{
 		}else {
 			info=String.format("INFO %-20s AT %-19s.%-3s,%10s = %-10s",messege,time,now.getTime()%1000,valueName,value);
 		}
+		System.out.println(info);
 		concurrentLinkedQueue.add(info);
 		synchronized(fis) {
 			fis.notifyAll();
@@ -43,6 +44,7 @@ public class DataLogger extends GeneralService{
 		}else {
 			warning=String.format("WARNING %-20s AT %-19s.%-3s,%10s = %-10s",messege,time,now.getTime()%1000,valueName,value);
 		}
+		System.err.println(warning);
 		concurrentLinkedQueue.add(warning);
 		synchronized(fis) {
 			fis.notifyAll();
@@ -68,7 +70,7 @@ public class DataLogger extends GeneralService{
 		}
 		logFile=new File(localPath.getAbsolutePath()+File.separator+time+".log");
 		try {
-			System.out.println(logFile);
+//			System.out.println(logFile);
 			fis=new FileOutputStream(logFile);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -85,11 +87,11 @@ public class DataLogger extends GeneralService{
 	@Override
 	public void execute() {
 		PrintWriter pw=new PrintWriter(fis);
-		System.out.print("run");
+//		System.out.print("run");
 		while(status[0]) {
 			while(!concurrentLinkedQueue.isEmpty()) {
 				String test=concurrentLinkedQueue.remove();
-				System.out.println(test);
+//				System.out.println(test);
 				pw.println(test);
 				pw.flush();
 			}
