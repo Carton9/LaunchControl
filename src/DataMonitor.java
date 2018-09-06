@@ -1,21 +1,143 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.carton.common.net.GeneralUDPSocket;
+import org.carton.common.net.ReceiveListener;
 import org.carton.common.net.ServiceDiscoverUDPSocket;
 import org.carton.common.service.GeneralServiceExecutePool;
+import org.carton.common.util.ConfigAccesser;
+import org.jdom.*;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 
 import gui.DisplayUnit;
 
 public class DataMonitor extends GeneralServiceExecutePool {
 	String name;
 	boolean isGPSReady;
-	ArrayList<ValueProfile> profileList;
+	HashMap<String,ValueProfile[]> profileMap;
 	ArrayList<DisplayUnit> displayList;
 	int dataPort;
 	int discoverPort;
-	ConcurrentLinkedQueue<HashMap<String,ArrayList<String>>> dataQueue = new ConcurrentLinkedQueue<HashMap<String,ArrayList<String>>>();
+	ConcurrentLinkedQueue<HashMap<String,Object>> dataQueue = new ConcurrentLinkedQueue<HashMap<String,Object>>();
 	GeneralUDPSocket gus;
 	ServiceDiscoverUDPSocket sdus;
+	File generalConfigFile;
+	ArrayList<InetAddress> serverList;
+	public DataMonitor() throws FileNotFoundException, JDOMException, IOException {
+		File localPath=new File("").getAbsoluteFile();
+		generalConfigFile=new File(localPath.getAbsolutePath()+File.separator+"Data_Monitor_Setting.xml");
+		Element e=loadConfigurationFromFile();
+		serverList=new ArrayList<InetAddress>();
+		if(e!=null) {
+			loadConfigurationFromElement(e);
+			gus=new GeneralUDPSocket(dataPort);
+			sdus=new ServiceDiscoverUDPSocket(discoverPort);
+		}
+	}
+	public void checkServer() throws UnknownHostException {
+		sdus.discoverService(name, false,discoverPort, new ReceiveListener() {
+
+			@Override
+			public boolean verify(byte[] data, InetAddress ip, int port) {
+				String[] info=new String(data).trim().split("@");
+				if(info[0].equals(name))
+					return true;
+				return false;
+			}
+
+			@Override
+			public void process(byte[] data, InetAddress ip, int port) {
+				// TODO Auto-generated method stub
+				serverList.add(ip);
+			}
+			
+		});
+	}
+	private void loadConfigurationFromElement(Element e) throws FileNotFoundException, JDOMException, IOException {
+		if(e.getName()!="DataMonitor"&&
+			e.getAttributeValue("Name")==null&&
+			e.getAttributeValue("DataPort")==null&&
+			e.getAttributeValue("DiscoverPort")==null&&
+			e.getAttributeValue("ProfileSize")==null&&
+			e.getAttributeValue("IsGPSReady")==null)return;
+		this.name=e.getAttributeValue("Name");
+		this.dataPort=Integer.parseInt(e.getAttributeValue("DataPort"));
+		this.discoverPort=Integer.parseInt(e.getAttributeValue("DiscoverPort"));
+		this.isGPSReady=(e.getAttributeValue("IsGPSReady").equals("TRUE"))?true:false;
+		profileMap=new HashMap<String,ValueProfile[]>();
+		for(Element profiles:(List<Element>)e.getChildren()) {
+			String dataType=profiles.getAttributeValue("DataType");
+			int profilesSize=Integer.parseInt(profiles.getAttributeValue("ProfilesSize"));
+			ValueProfile vps[]=new ValueProfile[profilesSize];
+			for(Element vpi:(List<Element>)profiles.getChildren()) {
+				ValueProfile vp=ValueProfile.complieProfileFromNode(vpi);
+				vps[vp.getOrder()]=vp;
+			}
+			profileMap.put(dataType, vps);
+		}
+	}
+	private Element saveConfigConfigurationToElement() {
+		Element e=new Element("DataMonitor");
+		e.setAttribute("Name", name);
+		e.setAttribute("DataPort", dataPort+"");
+		e.setAttribute("DiscoverPort", discoverPort+"");
+		e.setAttribute("IsGPSReady",(isGPSReady)?"TRUE":"FALSE");
+		
+		for(String i:profileMap.keySet()) {
+			Element profiles=new Element("Profiles"); 
+			profiles.setAttribute("DataType", i);
+			profiles.setAttribute("ProfilesSize", profileMap.get(i).length+"");
+			for(ValueProfile vp:profileMap.get(i)) {
+				profiles.addContent(vp.compileProfileToElement());
+			}
+			e.addContent(profiles);
+		}
+		return e;
+	}
+	private Element loadConfigurationFromFile() throws FileNotFoundException, JDOMException, IOException {
+		Element rootElement;
+		if(generalConfigFile.exists()&&generalConfigFile.canRead()&&generalConfigFile.canWrite()) {
+			SAXBuilder saxBuilder = new SAXBuilder();
+			Document document = saxBuilder.build(new FileInputStream(generalConfigFile));
+			rootElement=document.getRootElement();
+			return rootElement;
+		}else {
+			return null;
+		}
+		
+	}
+	private void saveConfigurationToFile(Element e) throws IOException {
+		Document document=new Document(e);
+		XMLOutputter xop=new XMLOutputter();
+		FileOutputStream fos=new FileOutputStream(generalConfigFile);
+		xop.output(document, fos);
+	}
+	public void saveConfiguration() throws IOException {
+		Element e=saveConfigConfigurationToElement();
+		saveConfigurationToFile(e);
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
