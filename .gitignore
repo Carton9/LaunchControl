@@ -1,4 +1,4 @@
 
 bin/org/carton/common/net/ServiceDiscoverUDPSocket$4.class
 *.class
-*.class
+*.log
