@@ -124,7 +124,6 @@ public class DataMonitor extends GeneralServiceExecutePool {
 			String dataType=$(dataItem.get("data type"));
 			ArrayList<String> result=$(dataItem.get("value"));
 			long time=Long.parseLong($(dataItem.get("time")));
-			
 			ValueProfile vps[]=profileMap.get(dataType);
 			double dataArray[]=new double[result.size()];
 			for(int i=0;i<result.size();i++) {
