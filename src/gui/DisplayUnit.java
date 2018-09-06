@@ -10,6 +10,7 @@ public class DisplayUnit extends JPanel {
 	JLabel dataName;
 	JLabel value;
 	String dataTerm;
+	DisplayUnit next;
 	//color: Red-Error Yellow-Warning Green-Normal
 	public DisplayUnit(String dataTerm) {
 		super(new GridLayout(1,2));
@@ -19,9 +20,21 @@ public class DisplayUnit extends JPanel {
 		this.add(value);
 		this.dataTerm=dataTerm;
 	}
+	public String getDataType() {
+		return dataTerm.split("#")[0];
+	}
+	public String getDataName() {
+		return dataTerm.split("#")[1];
+	}
 	public void updateInfo(HashMap<String,String> info) {
-		if(!info.get("DataTerm").equals(dataTerm))return;
-		String name=dataTerm.split("#")[1];
+		if(!dataTerm.equals(info.get("DataTerm"))) {
+			if(next!=null) {
+				next.updateInfo(info);
+				return;
+			}
+			return;
+		}
+		String name=info.get("DataTerm").split("#")[1];
 		dataName.setText(name);
 		String valueInfo=info.get("Value");
 		if(valueInfo.contains("%")) {
@@ -36,5 +49,17 @@ public class DisplayUnit extends JPanel {
 			this.setBackground(Color.WHITE);
 		}
 		this.repaint();
+	}
+	public void addNext(DisplayUnit nextU) {
+		if(next!=null)next.addNext(nextU);
+		else next=nextU;
+	}
+	public void remove(String DataTerm) {
+		if(next!=null&&DataTerm.equals(next.getDataType()+"#"+next.getDataName())) {
+			next=next.breakChain();
+		}
+	}
+	public DisplayUnit breakChain() {
+		return next;
 	}
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<RocketEngineer>
+		<ValueProfile type="temp" name="EnginTemp_1"></ValueProfile>
+		<ValueProfile type="temp" name="EnginTemp_2"></ValueProfile>
+		<ValueProfile type="temp" name="EnginTemp_3"></ValueProfile>
+		<ValueProfile type="temp" name="EnginTemp_4"></ValueProfile>
+		<ValueProfile type="temp" name="EnginTemp_5"></ValueProfile>
+		<ValueProfile type="temp" name="EnginTemp_6"></ValueProfile>
+	</RocketEngineer>
+</root>

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jdom.DocType;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -19,6 +20,7 @@ public class ConfigAccesser {
 	private static final String TRUE="true";
 	private static final String MAP="map";
 	private static final String LIST="list";
+	private static final String LISTITEM="item";
 	Document document;
 	Element rootElement;
 	File savedFile;
@@ -35,7 +37,7 @@ public class ConfigAccesser {
 			rootElement=new Element("Settings");
 			document=new Document(rootElement);
 		}
-		
+		rootElement.setAttribute("Creater", "ConfigAccesser V1.1");
 	}
 	private Element getIndexElement(String settingName) {
 		List<Element> children=rootElement.getChildren();
@@ -55,9 +57,13 @@ public class ConfigAccesser {
 		String list="";
 		for(String i:map.keySet()) {
 			list+=i+","; 
-			Element e=new Element(i);
-			e.setAttribute("value", map.get(i));
-			setting.addContent(e);
+			if(sameNodeCheck(i,setting)!=null) {
+				sameNodeCheck(i,setting).setAttribute("value", map.get(i));
+			}else {
+				Element e=new Element(i);
+				e.setAttribute("value", map.get(i));
+				setting.addContent(e);
+			}
 		}
 		list.subSequence(0, list.length()-1);
 		setting.setAttribute("items", list);
@@ -68,9 +74,14 @@ public class ConfigAccesser {
 		setting.setAttribute("DataType",LIST);
 		String length=""+listData.size();
 		for(int i=0;i<listData.size();i++) {
-			Element e=new Element(i+"");
-			e.setAttribute("value", listData.get(i));
-			setting.addContent(e);
+			if(sameNodeCheck(LISTITEM+"_"+i,setting)!=null) {
+				sameNodeCheck(LISTITEM+"_"+i,setting).setAttribute("value", listData.get(i));
+			}else {
+				Element e=new Element(LISTITEM+"_"+i);
+				e.setAttribute("value", listData.get(i));
+				setting.addContent(e);
+			}
+			
 		}
 		setting.setAttribute("length", length);
 		
@@ -85,7 +96,7 @@ public class ConfigAccesser {
 		try {
 			int length=Integer.parseInt(setting.getAttributeValue("length"));
 			for(int i=0;i<length;i++) {
-				Element e=setting.getChild(i+"");
+				Element e=setting.getChild(LISTITEM+"_"+i);
 				if(e==null) {
 					listData.add("");
 				}else {
@@ -120,7 +131,15 @@ public class ConfigAccesser {
 			}
 		}
 	}
+	private Element sameNodeCheck(String name,Element e) {
+		for(Element c:(List<Element>)e.getChildren()) {
+			if(c.getName().equals(name))
+				return c;
+		}
+		return null;
+	}
 	public void saveConfiguration() throws IOException {
+		savedFile.createNewFile();
 		XMLOutputter xop=new XMLOutputter();
 		FileOutputStream fos=new FileOutputStream(savedFile);
 		xop.output(document, fos);
