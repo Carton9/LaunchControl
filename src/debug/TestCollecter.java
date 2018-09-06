@@ -1,4 +1,4 @@
-
+package debug;
 public class TestCollecter extends DataCollector {
 
 	@Override

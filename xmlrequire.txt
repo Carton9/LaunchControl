@@ -1,0 +1,8 @@
+Monitor names
+data types
+each data name
+Monitor need's data
+data port
+discover port
+value profiles
+IsGPSReady
