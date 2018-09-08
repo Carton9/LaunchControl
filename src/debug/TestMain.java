@@ -37,14 +37,14 @@ public class TestMain {
 //			Thread.sleep(1000);
 //			System.out.println(String.format("INFO %-20s WHEN %-19s, THAT %10s = %-10s","temputrue on line and ready",time,"test one",12312.12+""));
 //		}
-		DataLogger dl=new DataLogger();
-		GeneralServiceExecutePool gsep=new GeneralServiceExecutePool();
-		
-		gsep.lunchUnit(dl);
-		for(int i=0;i<100;i++) {
-			dl.submitWarning("test "+i, "i", i+"");
-			Thread.sleep(10);
-		}
+//		DataLogger dl=new DataLogger();
+//		GeneralServiceExecutePool gsep=new GeneralServiceExecutePool();
+//		
+//		gsep.lunchUnit(dl);
+//		for(int i=0;i<100;i++) {
+//			dl.submitWarning("test "+i, "i", i+"");
+//			Thread.sleep(10);
+//		}
 //		
 //		gsep.closePool();
 //		gsep.closePool();System.out.println("finish");
@@ -147,7 +147,7 @@ public class TestMain {
 //			du3.updateInfo(data);
 //			du4.updateInfo(data);
 //		}
-		
+//		new MonitorCreater();
 //=======
 ////		core.compileData();
 //		ValueProfile vp=new ValueProfile("temp", "temp1", "VALUE","C", 1, 1, 1, 0.3);
